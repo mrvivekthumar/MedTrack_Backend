@@ -6,9 +6,15 @@ spring:
     username: postgres
     password: Mr.VivekThumar@2004
     url: jdbc:postgresql://localhost:5432/duhacks
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    default-schema: public
+    contexts: development
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
+    show-sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
   mail:

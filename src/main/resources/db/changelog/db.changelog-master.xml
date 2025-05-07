@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Changesets will be included here -->
+    <include file="db/changelog/001-create-user-table.xml"/>
+    <include file="db/changelog/002-create-health-product-table.xml"/>
+    <include file="db/changelog/003-create-medicine-reminder-table.xml"/>
+    <include file="db/changelog/004-create-medicine-usage-log-table.xml"/>
+
+
+
+
+</databaseChangeLog>

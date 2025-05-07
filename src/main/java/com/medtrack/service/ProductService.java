@@ -95,7 +95,7 @@ public class ProductService {
         var res = productRepo.findAllByUserIdAndCreatedAtBetween(id, startOfDay, endOfDay);
 
         if (res.isEmpty()) {
-            List<HealthProduct> ans = healthProductRepo.findAllByUserId(id);
+            List<HealthProduct> ans = healthProductRepo.findByUserId(id);
 
             Map<Long, List<HealthProduct>> groupedByHealthProduct = ans.stream()
                     .collect(Collectors.groupingBy(HealthProduct::getId));

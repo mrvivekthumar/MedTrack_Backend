@@ -16,7 +16,8 @@ import jakarta.transaction.Transactional;
 @Repository
 public interface HealthProductRepo extends JpaRepository<HealthProduct, Long> {
 
-        List<HealthProduct> findAllByUserIdAndQuantityGreaterThanAndExpiryDateAfter(Long userId, Float quantity,
+        List<HealthProduct> findAllByUserIdAndAvailableQuantityGreaterThanAndExpiryDateAfter(Long userId,
+                        Float quantity,
                         LocalDate currentDate);
 
         @Query("SELECT hp FROM HealthProduct hp WHERE hp.user.id = :userId " +
@@ -30,9 +31,7 @@ public interface HealthProductRepo extends JpaRepository<HealthProduct, Long> {
         @Modifying
         @Transactional
         @Query("UPDATE HealthProduct hp SET hp.availableQuantity  = :availableQuantity  WHERE hp.id = :id")
-        void updateAvailableQuantityById(@Param("id") Long id, @Param("availableQuantity ") float availableQuantity);
-
-        List<HealthProduct> findAllByUserId(Long id);
+        void updateAvailableQuantityById(@Param("id") Long id, @Param("availableQuantity") float availableQuantity);
 
         List<HealthProduct> findByUserId(Long userId);
 }

@@ -171,7 +171,7 @@ public class HealthProductService {
 
         LocalDate today = ZonedDateTime.now(KOLKATA_ZONE).toLocalDate();
         List<HealthProduct> products = healthProductRepository
-                .findAllByUserIdAndQuantityGreaterThanAndExpiryDateAfter(userId, 0f, today);
+                .findAllByUserIdAndAvailableQuantityGreaterThanAndExpiryDateAfter(userId, 0f, today);
 
         return healthProductMapper.toDtoList(products);
     }
