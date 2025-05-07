@@ -43,8 +43,10 @@ public class HealthProductService {
      * @return The created health product as DTO
      */
     public HealthProductDto createHealthProduct(HealthProductDto dto) {
+        System.out.println("Creating health product: " + dto.name());
         User user = userRepo.findById(dto.userId())
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
+        System.out.println("User found: " + user.getEmail());
 
         // Build HealthProduct entity from DTO
         HealthProduct product = HealthProduct.builder()
@@ -52,15 +54,7 @@ public class HealthProductService {
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.totalQuantity()) // Initially, available equals total
                 .thresholdQuantity(
-                        dto.thresholdQuantity() != null ? dto.thresholdQuantity() : dto.totalQuantity() * 0.1f) // Use
-                                                                                                                // provided
-                                                                                                                // threshold
-                                                                                                                // or
-                                                                                                                // compute
-                                                                                                                // as
-                                                                                                                // 10%
-                                                                                                                // of
-                                                                                                                // total
+                        dto.thresholdQuantity() != null ? dto.thresholdQuantity() : dto.totalQuantity() * 0.1f)
                 .doseQuantity(dto.doseQuantity())
                 .expiryDate(dto.expiryDate())
                 .unit(dto.unit())
@@ -204,7 +198,7 @@ public class HealthProductService {
 
         LocalDate today = ZonedDateTime.now(KOLKATA_ZONE).toLocalDate();
         List<HealthProduct> products = healthProductRepository.findLowStockHealthProducts(userId, today);
-
+        System.out.println("Low stock products: " + products.size());
         return healthProductMapper.toDtoList(products);
     }
 

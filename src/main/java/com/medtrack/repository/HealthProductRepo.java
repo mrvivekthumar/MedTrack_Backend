@@ -23,7 +23,7 @@ public interface HealthProductRepo extends JpaRepository<HealthProduct, Long> {
         @Query("SELECT hp FROM HealthProduct hp WHERE hp.user.id = :userId " +
                         "AND hp.totalQuantity > 0 " +
                         "AND hp.expiryDate > :expiryDate " +
-                        "AND hp.thresholdQuantity >= hp.availableQuantity")
+                        "AND hp.availableQuantity <= hp.thresholdQuantity")
         List<HealthProduct> findLowStockHealthProducts(
                         @Param("userId") Long userId,
                         @Param("expiryDate") LocalDate expiryDate);

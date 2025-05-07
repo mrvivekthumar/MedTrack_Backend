@@ -5,14 +5,15 @@ import java.io.Serializable;
 public record UserDto(
         Long id,
         String name,
-        String email) implements Serializable {
+        String email,
+        String password) implements Serializable {
 
     // The canonical constructor is automatically provided by the record
     // No need to explicitly define it
 
     // Static factory method for builder-like syntax if needed
-    public static UserDto of(Long id, String name, String email) {
-        return new UserDto(id, name, email);
+    public static UserDto of(Long id, String name, String email, String password) {
+        return new UserDto(id, name, email, password);
     }
 }
 

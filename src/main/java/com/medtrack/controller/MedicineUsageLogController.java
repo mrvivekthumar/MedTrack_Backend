@@ -35,7 +35,7 @@ public class MedicineUsageLogController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("//{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<List<MedicineUsageSummaryDto>> getOneDayNotificationCount(@PathVariable("id") Long id) {
         return ResponseEntity.ok(productService.getOneDay(id));
     }

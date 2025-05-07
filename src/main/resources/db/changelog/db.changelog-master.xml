@@ -11,8 +11,4 @@
     <include file="db/changelog/002-create-health-product-table.xml"/>
     <include file="db/changelog/003-create-medicine-reminder-table.xml"/>
     <include file="db/changelog/004-create-medicine-usage-log-table.xml"/>
-
-
-
-
 </databaseChangeLog>

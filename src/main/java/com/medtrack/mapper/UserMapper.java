@@ -16,7 +16,8 @@ public class UserMapper {
         return new UserDto(
                 user.getId(),
                 user.getName(),
-                user.getEmail());
+                user.getEmail(),
+                user.getPassword());
     }
 
     // Mapping from DTO to entity
@@ -28,6 +29,7 @@ public class UserMapper {
                 .id(dto.id())
                 .name(dto.name())
                 .email(dto.email())
+                .password(dto.password())
                 .build();
     }
 }

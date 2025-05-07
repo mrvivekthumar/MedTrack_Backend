@@ -2,6 +2,7 @@ package com.medtrack.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,15 +25,21 @@ public class UserController {
     private final UserMapper userMapper;
 
     @PostMapping("/signup")
-    public ResponseEntity<UserDto> signUp(@RequestBody User user) {
-        User savedUser = userService.signUp(user);
+    public ResponseEntity<UserDto> signUp(@RequestBody UserDto userDto) {
+        User savedUser = userService.signUp(userDto);
         return ResponseEntity.ok(userMapper.toDto(savedUser));
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<UserDto> signIn(@RequestBody User user) {
-        User authenticatedUser = userService.signIn(user);
+    public ResponseEntity<UserDto> signIn(@RequestBody UserDto userDto) {
+        User authenticatedUser = userService.signIn(userDto);
         return ResponseEntity.ok(userMapper.toDto(authenticatedUser));
+    }
+
+    @GetMapping("/getUser/{id}")
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") Long id) {
+        User user = userService.getUser(id);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @DeleteMapping("/{id}")

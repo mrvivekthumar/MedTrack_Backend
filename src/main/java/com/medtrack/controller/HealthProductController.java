@@ -23,7 +23,7 @@ public class HealthProductController {
 
     private final HealthProductService healthProductService;
 
-    @PostMapping
+    @PostMapping("/createHealthProduct")
     public ResponseEntity<HealthProductDto> createHealthProduct(@RequestBody HealthProductDto healthProductDto) {
         return ResponseEntity.ok(healthProductService.createHealthProduct(healthProductDto));
     }

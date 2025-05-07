@@ -7,13 +7,13 @@ spring:
     password: Mr.VivekThumar@2004
     url: jdbc:postgresql://localhost:5432/duhacks
   liquibase:
-    enabled: true
+    enabled: false
     change-log: classpath:/db/changelog/db.changelog-master.xml
     default-schema: public
     contexts: development
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
+    <!-- Create users table with auto-incrementing id -->
     <changeSet id="1" author="vivek">
-        <createTable tableName="user">
+        <createTable tableName="users">
             <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -24,10 +25,15 @@
             </column>
         </createTable>
 
-        <addAutoIncrement columnName="id"
-                          tableName="user"
-                          incrementBy="1"
-                          startWith="1"
-                          columnDataType="BIGINT"/>
+        <!-- Set auto-increment for the id column (PostgreSQL approach) -->
+        <sql>
+            ALTER TABLE users ALTER COLUMN id SET DEFAULT nextval('users_id_seq');
+        </sql>
     </changeSet>
+
+    <!-- Create the sequence for auto-increment -->
+    <changeSet id="2" author="vivek">
+        <createSequence sequenceName="users_id_seq" startValue="1" incrementBy="1"/>
+    </changeSet>
+
 </databaseChangeLog>

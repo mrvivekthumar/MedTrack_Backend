@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
-        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
+    <!-- Create health_product table -->
     <changeSet id="2" author="vivek">
         <createTable tableName="health_product">
             <column name="id" type="BIGINT">
@@ -25,12 +26,19 @@
             </column>
         </createTable>
 
-        <addAutoIncrement columnName="id"
-                          tableName="health_product"
-                          incrementBy="1"
-                          startWith="1"
-                          columnDataType="BIGINT"/>
+        <!-- Set auto-increment for the id column (PostgreSQL approach) -->
+        <sql>
+            ALTER TABLE health_product ALTER COLUMN id SET DEFAULT nextval('health_product_id_seq');
+        </sql>
+    </changeSet>
 
+    <!-- Create sequence for auto-increment id column -->
+    <changeSet id="3" author="vivek">
+        <createSequence sequenceName="health_product_id_seq" startValue="1" incrementBy="1"/>
+    </changeSet>
+
+    <!-- Add foreign key constraint to user_id column -->
+    <changeSet id="4" author="vivek">
         <addForeignKeyConstraint 
             baseTableName="health_product"
             baseColumnNames="user_id"
@@ -38,4 +46,5 @@
             referencedColumnNames="id"
             constraintName="fk_healthproduct_user"/>
     </changeSet>
+
 </databaseChangeLog>
