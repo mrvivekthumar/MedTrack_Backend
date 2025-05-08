@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.medtrack.dto.AuthResponse;
 import com.medtrack.dto.UserDto;
 import com.medtrack.mapper.UserMapper;
 import com.medtrack.model.User;
@@ -31,9 +32,9 @@ public class UserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<UserDto> signIn(@RequestBody UserDto userDto) {
-        User authenticatedUser = userService.signIn(userDto);
-        return ResponseEntity.ok(userMapper.toDto(authenticatedUser));
+    public ResponseEntity<AuthResponse> signIn(@RequestBody UserDto userDto) {
+        AuthResponse authenticatedUser = userService.signIn(userDto);
+        return ResponseEntity.ok(authenticatedUser);
     }
 
     @GetMapping("/getUser/{id}")
