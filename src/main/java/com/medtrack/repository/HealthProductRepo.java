@@ -16,10 +16,14 @@ import jakarta.transaction.Transactional;
 @Repository
 public interface HealthProductRepo extends JpaRepository<HealthProduct, Long> {
 
+        List<HealthProduct> findByUserId(Long userId);
+
+        // Find all products with quantity > 0 and not expired
         List<HealthProduct> findAllByUserIdAndAvailableQuantityGreaterThanAndExpiryDateAfter(Long userId,
                         Float quantity,
                         LocalDate currentDate);
 
+        // Find low stock products (available quantity <= threshold)
         @Query("SELECT hp FROM HealthProduct hp WHERE hp.user.id = :userId " +
                         "AND hp.totalQuantity > 0 " +
                         "AND hp.expiryDate > :expiryDate " +
@@ -33,5 +37,4 @@ public interface HealthProductRepo extends JpaRepository<HealthProduct, Long> {
         @Query("UPDATE HealthProduct hp SET hp.availableQuantity  = :availableQuantity  WHERE hp.id = :id")
         void updateAvailableQuantityById(@Param("id") Long id, @Param("availableQuantity") float availableQuantity);
 
-        List<HealthProduct> findByUserId(Long userId);
 }
