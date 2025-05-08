@@ -2,6 +2,7 @@ package com.medtrack.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,31 +13,32 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.medtrack.dto.MedicineUsageLogDto;
 import com.medtrack.dto.MedicineUsageSummaryDto;
-import com.medtrack.service.ProductService;
+import com.medtrack.service.MedicineUsageLogService;
 
 import lombok.AllArgsConstructor;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/logs")
+@RequestMapping("/api/v1/medicine-logs")
 public class MedicineUsageLogController {
 
-    private final ProductService productService;
+    private final MedicineUsageLogService medicineUsageLogService;
 
     @GetMapping("/{userId}/time/{days}")
-    public ResponseEntity<List<MedicineUsageSummaryDto>> getAllLogInDays(@PathVariable("userId") Long id,
+    public ResponseEntity<List<MedicineUsageSummaryDto>> getLogsForPastDays(@PathVariable("userId") Long id,
             @PathVariable("days") Integer days) {
-        return ResponseEntity.ok(productService.getLogForTime(id, days));
+        return ResponseEntity.ok(medicineUsageLogService.getLogForTime(id, days));
     }
 
     @PostMapping("/log")
-    public ResponseEntity<Void> addLog(@RequestBody MedicineUsageLogDto pd) {
-        productService.add(pd);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> addLog(@RequestBody MedicineUsageLogDto logDto) {
+        medicineUsageLogService.add(logDto);
+        // return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<List<MedicineUsageSummaryDto>> getOneDayNotificationCount(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(productService.getOneDay(id));
+    @GetMapping("/{userId}/today")
+    public ResponseEntity<List<MedicineUsageSummaryDto>> getTodayLogs(@PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(medicineUsageLogService.getOneDay(userId));
     }
 }
