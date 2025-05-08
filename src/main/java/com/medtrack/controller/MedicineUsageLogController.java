@@ -25,9 +25,9 @@ public class MedicineUsageLogController {
     private final MedicineUsageLogService medicineUsageLogService;
 
     @GetMapping("/{userId}/time/{days}")
-    public ResponseEntity<List<MedicineUsageSummaryDto>> getLogsForPastDays(@PathVariable("userId") Long id,
+    public ResponseEntity<List<MedicineUsageSummaryDto>> getLogsForPastDays(@PathVariable("userId") Long userId,
             @PathVariable("days") Integer days) {
-        return ResponseEntity.ok(medicineUsageLogService.getLogForTime(id, days));
+        return ResponseEntity.ok(medicineUsageLogService.getLogForTime(userId, days));
     }
 
     @PostMapping("/log")
