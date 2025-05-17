@@ -30,11 +30,6 @@ class ExpiryNotificationTask {
     private boolean reminderSent;
 }
 
-/**
- * Service responsible for managing medicine expiry notifications.
- * Maintains a priority queue of products ordered by expiry date
- * and sends notifications when products are about to expire.
- */
 @Component
 @Scope("singleton")
 public class MedicineExpiryNotificationService implements Runnable {

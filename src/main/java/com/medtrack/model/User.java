@@ -26,19 +26,19 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    Long id;
+    private Long id;
 
     @Column(nullable = false)
-    String name;
+    private String fullname;
 
     @Column(nullable = false)
-    String password;
+    private String password;
 
     @Column(unique = true, nullable = false)
-    String email;
+    private String email;
 
     @Column(nullable = false, updatable = false)
-    Timestamp createdAt;
+    private Timestamp createdAt;
 
     @PrePersist
     public void onPrePersist() {

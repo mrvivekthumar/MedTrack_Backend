@@ -20,7 +20,7 @@ public class AppConfiguration {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/")
+                registry.addMapping("/**")
                         .allowedOrigins("*") // Allow all origins or specify frontend URL
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*");

@@ -55,10 +55,10 @@ public class MedicineUsageLogService {
         }
 
         MedicineUsageLog medicineUsageLog = MedicineUsageLog.builder()
-                .isTaken(logDto.getIsTaken()) // Setting the 'isTaken' field from the logDto object
+                .isTaken(logDto.getIsTaken()) 
                 .user(user) // Setting the user of the log
                 .healthProduct(healthProduct) // Setting the health product involved
-                .build(); // Building the MedicineUsageLog object
+                .build(); 
 
         medicineUsageLogRepo.save(medicineUsageLog);
     }

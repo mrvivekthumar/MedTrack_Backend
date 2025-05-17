@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import com.medtrack.dto.HealthProductDto;
+import com.medtrack.dto.HealthProductRequestDto;
+import com.medtrack.dto.HealthProductResponseDto;
 import com.medtrack.model.HealthProduct;
 import com.medtrack.model.User;
 
@@ -17,8 +18,11 @@ import com.medtrack.model.User;
 @Component
 public class HealthProductMapper {
 
-    /* Converts a HealthProduct entity to its DTO representation */
-    public HealthProductDto toDto(HealthProduct product) {
+    /*
+     * Converts a HealthProduct entity to its HealthProductResponseDto
+     * representation
+     */
+    public HealthProductResponseDto toDto(HealthProduct product) {
         if (product == null) {
             return null;
         }
@@ -27,9 +31,8 @@ public class HealthProductMapper {
                 .map(reminder -> reminder.getTime().format(DateTimeFormatter.ofPattern("HH:mm")))
                 .collect(Collectors.toList()) : Collections.emptyList();
 
-        return new HealthProductDto(
+        return new HealthProductResponseDto(
                 product.getId(),
-                product.getUser() != null ? product.getUser().getId() : null,
                 product.getName(),
                 product.getTotalQuantity(),
                 product.getAvailableQuantity(),
@@ -41,17 +44,17 @@ public class HealthProductMapper {
     }
 
     /**
-     * Converts a HealthProductDto to its entity representation
+     * Converts a HealthProductRequestDto to its entity representation
      * Note: User and MedicineReminders need to be set separately
      */
-    public HealthProduct toEntity(HealthProductDto dto, User user) {
+    public HealthProduct toEntity(HealthProductRequestDto dto, User user) {
         if (dto == null) {
             return null;
         }
 
         return HealthProduct.builder()
-                .id(dto.id())
-                .name(dto.name())
+                .id(dto.userId())
+                .name(dto.healthProductname())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.availableQuantity())
                 .thresholdQuantity(dto.thresholdQuantity())
@@ -66,14 +69,14 @@ public class HealthProductMapper {
      * Overloaded method that doesn't require a user parameter
      * Useful for updates where we don't need to change the user
      */
-    public HealthProduct toEntity(HealthProductDto dto) {
+    public HealthProduct toEntity(HealthProductRequestDto dto) {
         if (dto == null) {
             return null;
         }
 
         return HealthProduct.builder()
-                .id(dto.id())
-                .name(dto.name())
+                .id(dto.userId())
+                .name(dto.healthProductname())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.availableQuantity())
                 .thresholdQuantity(dto.thresholdQuantity())
@@ -86,7 +89,7 @@ public class HealthProductMapper {
     /**
      * Converts a list of HealthProduct entities to DTOs
      */
-    public List<HealthProductDto> toDtoList(List<HealthProduct> products) {
+    public List<HealthProductResponseDto> toDtoList(List<HealthProduct> products) {
         if (products == null) {
             return Collections.emptyList();
         }

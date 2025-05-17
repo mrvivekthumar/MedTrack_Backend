@@ -26,7 +26,7 @@ public class MedicineReminder {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "health_product_id ", nullable = false)
+    @JoinColumn(name = "health_product_id", nullable = false)
     private HealthProduct healthProduct;
 
     private LocalTime time;

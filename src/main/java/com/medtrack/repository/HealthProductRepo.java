@@ -34,7 +34,8 @@ public interface HealthProductRepo extends JpaRepository<HealthProduct, Long> {
 
         @Modifying
         @Transactional
-        @Query("UPDATE HealthProduct hp SET hp.availableQuantity  = :availableQuantity  WHERE hp.id = :id")
-        void updateAvailableQuantityById(@Param("id") Long id, @Param("availableQuantity") float availableQuantity);
+        @Query("UPDATE HealthProduct hp SET hp.availableQuantity  = :newAvailableQuantity  WHERE hp.id = :healthProductId")
+        void updateAvailableQuantityById(@Param("healthProductId") Long healthProductId,
+                        @Param("newAvailableQuantity") float newAvailableQuantity);
 
 }

@@ -5,7 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.medtrack.dto.AuthResponse;
-import com.medtrack.dto.UserDto;
+import com.medtrack.dto.UserRequestDto;
 import com.medtrack.exceptions.AuthException;
 import com.medtrack.mapper.UserMapper;
 import com.medtrack.model.User;
@@ -24,8 +24,8 @@ public class UserService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final JwtUtil jwtUtil;
 
-    public User signUp(UserDto userDto) {
-        
+    public User signUp(UserRequestDto userDto) {
+
         userRepo.findOneByEmail(userDto.email()).ifPresent(existingUser -> {
             throw new AuthException("User with Email %s already exists.".formatted(existingUser.getEmail()));
         });
@@ -36,7 +36,7 @@ public class UserService {
         return userRepo.save(user);
     }
 
-    public AuthResponse signIn(UserDto userDto) {
+    public AuthResponse signIn(UserRequestDto userDto) {
         User existingUser = userRepo.findOneByEmail(userDto.email()).orElseThrow(
                 () -> new EntityNotFoundException("User with email %s not found".formatted(userDto.email())));
 
@@ -45,13 +45,13 @@ public class UserService {
         }
 
         String token = jwtUtil.generateToken(existingUser.getEmail());
-        
-        AuthResponse authResponse = new AuthResponse(userMapper.toDto(existingUser), token);
-        return authResponse;
+
+        return new AuthResponse(userMapper.toDto(existingUser), token);
     }
 
-    public User getUser(Long id) {
-        return userRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("User with ID %d not found".formatted(id)));
+    public User getUser(Long userId) {
+        return userRepo.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID %d not found".formatted(userId)));
     }
 
     public void delete(Long id) {

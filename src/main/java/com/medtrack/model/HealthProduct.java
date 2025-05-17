@@ -43,7 +43,7 @@ public class HealthProduct {
     private String unit;
     private LocalDate expiryDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

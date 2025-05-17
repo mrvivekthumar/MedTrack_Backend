@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.medtrack.dto.HealthProductDto;
+import com.medtrack.dto.HealthProductRequestDto;
 import com.medtrack.mapper.HealthProductMapper;
 import com.medtrack.model.HealthProduct;
 import com.medtrack.model.MedicineReminder;
@@ -20,6 +20,7 @@ import com.medtrack.repository.UserRepo;
 import com.medtrack.utils.MedicineExpiryNotificationService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -30,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 public class HealthProductService {
 
     private final HealthProductRepo healthProductRepository;
-    private final HealthProductMapper healthProductMapper;
     private final MedicineExpiryNotificationService medicineExpiryNotificationService;
     private final UserRepo userRepo;
 
@@ -42,15 +42,14 @@ public class HealthProductService {
      * @param dto The health product data
      * @return The created health product as DTO
      */
-    public HealthProductDto createHealthProduct(HealthProductDto dto) {
-        System.out.println("Creating health product: " + dto.name());
+    public HealthProduct createHealthProduct(HealthProductRequestDto dto) {
         User user = userRepo.findById(dto.userId())
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
         System.out.println("User found: " + user.getEmail());
 
         // Build HealthProduct entity from DTO
         HealthProduct product = HealthProduct.builder()
-                .name(dto.name())
+                .name(dto.healthProductname())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.totalQuantity()) // Initially, available equals total
                 .thresholdQuantity(
@@ -80,7 +79,7 @@ public class HealthProductService {
         // Trigger expiry email scheduling
         medicineExpiryNotificationService.scheduleMedicineExpiryNotification(savedProduct);
 
-        return healthProductMapper.toDto(savedProduct);
+        return savedProduct;
     }
 
     /**
@@ -90,14 +89,14 @@ public class HealthProductService {
      * @param dto The updated health product data
      * @return The updated health product as DTO
      */
-    public HealthProductDto updateHealthProduct(Long id, HealthProductDto dto) {
-        HealthProduct existingProduct = healthProductRepository.findById(id)
+    public HealthProduct updateHealthProduct(Long healthProductId, HealthProductRequestDto dto) {
+        HealthProduct existingProduct = healthProductRepository.findById(healthProductId)
                 .orElseThrow(() -> new EntityNotFoundException("Health Product not found"));
 
         User user = existingProduct.getUser();
 
         // Update product fields from DTO
-        existingProduct.setName(dto.name());
+        existingProduct.setName(dto.healthProductname());
         existingProduct.setTotalQuantity(dto.totalQuantity());
 
         // Only update available quantity if specifically provided
@@ -133,7 +132,7 @@ public class HealthProductService {
         // Update expiry notification
         medicineExpiryNotificationService.updateMedicineExpiryNotification(savedProduct);
 
-        return healthProductMapper.toDto(savedProduct);
+        return savedProduct;
     }
 
     /**
@@ -142,14 +141,25 @@ public class HealthProductService {
      * @param id The ID of the health product to delete
      * @return true if deletion was successful
      */
-    public boolean deleteHealthProduct(Long id) {
-        HealthProduct product = healthProductRepository.findById(id)
+    public void deleteHealthProduct(Long healthProductId) {
+        HealthProduct product = healthProductRepository.findById(healthProductId)
                 .orElseThrow(() -> new EntityNotFoundException("Health Product not found"));
 
         healthProductRepository.delete(product);
-        medicineExpiryNotificationService.removeMedicineExpiryNotification(id);
 
-        return true;
+        medicineExpiryNotificationService.removeMedicineExpiryNotification(healthProductId);
+    }
+
+    /**
+     * Gets a single health product by ID
+     * 
+     * @param id The health product ID
+     * @return The health product as DTO
+     */
+    public HealthProduct getHealthProduct(Long healthProductId) {
+        HealthProduct product = healthProductRepository.findById(healthProductId)
+                .orElseThrow(() -> new EntityNotFoundException("Health Product not found"));
+        return product;
     }
 
     /**
@@ -159,7 +169,7 @@ public class HealthProductService {
      * @param userId The user ID
      * @return List of active health products as DTOs
      */
-    public List<HealthProductDto> getActiveHealthProducts(Long userId) {
+    public List<HealthProduct> getActiveHealthProducts(Long userId) {
         userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
 
@@ -167,7 +177,7 @@ public class HealthProductService {
         List<HealthProduct> products = healthProductRepository
                 .findAllByUserIdAndAvailableQuantityGreaterThanAndExpiryDateAfter(userId, 0f, today);
 
-        return healthProductMapper.toDtoList(products);
+        return products;
     }
 
     /**
@@ -177,13 +187,13 @@ public class HealthProductService {
      * @param userId The user ID
      * @return List of all health products as DTOs
      */
-    public List<HealthProductDto> getAllHealthProducts(Long userId) {
+    public List<HealthProduct> getAllHealthProducts(Long userId) {
         userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
 
         List<HealthProduct> products = healthProductRepository.findByUserId(userId);
 
-        return healthProductMapper.toDtoList(products);
+        return products;
     }
 
     /**
@@ -192,27 +202,14 @@ public class HealthProductService {
      * @param userId The user ID
      * @return List of low stock health products as DTOs
      */
-    public List<HealthProductDto> getLowStockHealthProducts(Long userId) {
+    public List<HealthProduct> getLowStockHealthProducts(Long userId) {
         userRepo.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
 
         LocalDate today = ZonedDateTime.now(KOLKATA_ZONE).toLocalDate();
         List<HealthProduct> products = healthProductRepository.findLowStockHealthProducts(userId, today);
         System.out.println("Low stock products: " + products.size());
-        return healthProductMapper.toDtoList(products);
-    }
-
-    /**
-     * Gets a single health product by ID
-     * 
-     * @param id The health product ID
-     * @return The health product as DTO
-     */
-    public HealthProductDto getHealthProductById(Long id) {
-        HealthProduct product = healthProductRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Health Product not found"));
-
-        return healthProductMapper.toDto(product);
+        return products;
     }
 
     /**
@@ -221,8 +218,8 @@ public class HealthProductService {
      * @param id The health product ID
      * @return The updated health product as DTO
      */
-    public HealthProductDto recordMedicineUsage(Long id) {
-        HealthProduct product = healthProductRepository.findById(id)
+    public HealthProduct recordMedicineUsage(Long healthProductId) {
+        HealthProduct product = healthProductRepository.findById(healthProductId)
                 .orElseThrow(() -> new EntityNotFoundException("Health Product not found"));
 
         Float newQuantity = product.getAvailableQuantity() - product.getDoseQuantity();
@@ -230,6 +227,6 @@ public class HealthProductService {
 
         HealthProduct updatedProduct = healthProductRepository.save(product);
 
-        return healthProductMapper.toDto(updatedProduct);
+        return updatedProduct;
     }
 }

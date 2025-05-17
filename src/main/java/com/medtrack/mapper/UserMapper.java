@@ -2,32 +2,31 @@ package com.medtrack.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.medtrack.dto.UserDto;
+import com.medtrack.dto.UserRequestDto;
+import com.medtrack.dto.UserResponseDto;
 import com.medtrack.model.User;
 
 @Component
 public class UserMapper {
 
-    public UserDto toDto(User user) {
+    // Map from Entity to Response DTO
+    public UserResponseDto toDto(User user) {
         if (user == null) {
             return null;
         }
-        // Works with your compact constructor
-        return new UserDto(
+        return new UserResponseDto(
                 user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getPassword());
+                user.getFullname(),
+                user.getEmail());
     }
 
     // Mapping from DTO to entity
-    public User toEntity(UserDto dto) {
+    public User toEntity(UserRequestDto dto) {
         if (dto == null) {
             return null;
         }
         return User.builder()
-                .id(dto.id())
-                .name(dto.name())
+                .fullname(dto.fullName())
                 .email(dto.email())
                 .password(dto.password())
                 .build();

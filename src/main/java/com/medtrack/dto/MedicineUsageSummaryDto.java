@@ -12,8 +12,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MedicineUsageSummaryDto {
-    private String healthProductName;
     private Long healthProductId;
+    private String healthProductName;
     private Long takenCount;
     private Long missedCount;
 }

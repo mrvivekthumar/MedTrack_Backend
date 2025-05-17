@@ -35,7 +35,7 @@ public class MedicineUsageLog {
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "health_product_id ", nullable = false)
+    @JoinColumn(name = "health_product_id", nullable = false)
     private HealthProduct healthProduct;
 
     private Boolean isTaken;

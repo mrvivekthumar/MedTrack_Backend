@@ -2,14 +2,23 @@ package com.medtrack.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final Key key;
+
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
+        // Use Base64 decoding if the key was encoded
+        this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));
+    }
+
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 hours
 
     public String generateToken(String username) {

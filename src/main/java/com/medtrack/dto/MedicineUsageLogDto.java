@@ -12,7 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class MedicineUsageLogDto {
-    private Long id;
     private Long userId;
     private Long healthProductId;
     private Boolean isTaken;
