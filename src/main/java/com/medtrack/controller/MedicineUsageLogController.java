@@ -32,8 +32,10 @@ public class MedicineUsageLogController {
 
     @PostMapping("/log")
     public ResponseEntity<Void> addLog(@RequestBody MedicineUsageLogDto logDto) {
+        System.out.println("Received log: " + logDto);
         medicineUsageLogService.add(logDto);
         // return ResponseEntity.ok().build();
+        System.out.println("Log added successfully");
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

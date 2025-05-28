@@ -28,6 +28,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserResponseDto> signUp(@RequestBody UserRequestDto userDto) {
+        System.out.println("Received user sign-up request: " + userDto);
         User savedUser = userService.signUp(userDto);
         return ResponseEntity.ok(userMapper.toDto(savedUser));
     }

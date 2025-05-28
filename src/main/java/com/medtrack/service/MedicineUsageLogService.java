@@ -35,14 +35,16 @@ public class MedicineUsageLogService {
 
         var user = userRepo.findById(logDto.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException("User Not Found"));
-
+        System.out.println("User found: " + user);
+        System.out.println("Log DTO: " + logDto.getHealthProductId());
         var healthProduct = healthProductRepo.findById(logDto.getHealthProductId())
                 .orElseThrow(() -> new EntityNotFoundException("Product Not Found"));
+        System.out.println("Health product found: " + healthProduct);
 
         if (logDto.getIsTaken() && (healthProduct.getTotalQuantity() < healthProduct.getDoseQuantity())) {
             throw new AuthException("Insufficient dose quantity available");
         }
-
+        System.out.println("Is taken: " + logDto.getIsTaken());
         if (logDto.getIsTaken()) {
 
             float newAvailableQuantity = healthProduct.getAvailableQuantity() - healthProduct.getDoseQuantity();
@@ -55,11 +57,12 @@ public class MedicineUsageLogService {
         }
 
         MedicineUsageLog medicineUsageLog = MedicineUsageLog.builder()
-                .isTaken(logDto.getIsTaken()) 
+                .isTaken(logDto.getIsTaken())
                 .user(user) // Setting the user of the log
                 .healthProduct(healthProduct) // Setting the health product involved
-                .build(); 
+                .build();
 
+        System.out.println("Medicine usage log created: " + medicineUsageLog);
         medicineUsageLogRepo.save(medicineUsageLog);
     }
 
