@@ -3,6 +3,7 @@ package com.medtrack.service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -99,20 +100,24 @@ public class MedicineUsageLogService {
     }
 
     public List<MedicineUsageSummaryDto> getOneDay(Long userId) {
-
+        // Verify user exists
         userRepo.findById(userId).orElseThrow(() -> new EntityNotFoundException("User Not Found"));
 
+        // Get today's date range
         ZonedDateTime kolkataTime = ZonedDateTime.now(ZoneId.of("Asia/Kolkata"));
         LocalDateTime now = kolkataTime.toLocalDateTime();
-        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay(); // Start of the day
+        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
         LocalDateTime endOfDay = startOfDay.plusDays(1).minusNanos(1);
 
+        // Get today's logs
         List<MedicineUsageLog> logs = medicineUsageLogRepo.findAllByUserIdAndCreatedAtBetween(userId, startOfDay,
                 endOfDay);
 
+        // 🔧 CASE 1: No logs for today - return default data
         if (logs.isEmpty()) {
             List<HealthProduct> healthProducts = healthProductRepo.findByUserId(userId);
             return healthProducts.stream()
+                    .filter(healthProduct -> healthProduct != null) // Filter null products
                     .collect(Collectors.groupingBy(HealthProduct::getId))
                     .values().stream()
                     .map(productList -> {
@@ -120,8 +125,14 @@ public class MedicineUsageLogService {
 
                         MedicineUsageSummaryDto dto = new MedicineUsageSummaryDto();
                         dto.setHealthProductId(healthProduct.getId());
-                        dto.setHealthProductName(healthProduct.getName());
-                        dto.setMissedCount((long) healthProduct.getMedicineReminders().size());
+                        dto.setHealthProductName(
+                                healthProduct.getName() != null ? healthProduct.getName() : "Unknown Medicine");
+
+                        // Safe null check for medicineReminders
+                        long reminderCount = healthProduct.getMedicineReminders() != null
+                                ? healthProduct.getMedicineReminders().size()
+                                : 0;
+                        dto.setMissedCount(reminderCount);
                         dto.setTakenCount(0L);
 
                         return dto;
@@ -129,10 +140,26 @@ public class MedicineUsageLogService {
                     .collect(Collectors.toList());
         }
 
-        // Group logs by health product name
-        Map<String, List<MedicineUsageLog>> groupedByHealthProduct = logs.stream()
+        // 🔧 CASE 2: We have logs - process them safely
+
+        // First, filter out any logs with null health products or names
+        List<MedicineUsageLog> validLogs = logs.stream()
+                .filter(log -> log != null)
+                .filter(log -> log.getHealthProduct() != null)
+                .filter(log -> log.getHealthProduct().getName() != null)
+                .collect(Collectors.toList());
+
+        // If all logs are invalid, return empty list
+        if (validLogs.isEmpty()) {
+            System.out.println("⚠️ All logs have null health products or names");
+            return new ArrayList<>();
+        }
+
+        // Group valid logs by health product name
+        Map<String, List<MedicineUsageLog>> groupedByHealthProduct = validLogs.stream()
                 .collect(Collectors.groupingBy(log -> log.getHealthProduct().getName()));
 
+        // Convert to DTOs
         List<MedicineUsageSummaryDto> result = groupedByHealthProduct.values().stream()
                 .map(productLogs -> {
                     MedicineUsageLog firstLog = productLogs.get(0);
@@ -144,7 +171,12 @@ public class MedicineUsageLogService {
 
                     long takenCount = productLogs.size();
                     dto.setTakenCount(takenCount);
-                    dto.setMissedCount(healthProduct.getMedicineReminders().size() - takenCount);
+
+                    // Safe null check for medicineReminders
+                    long reminderCount = healthProduct.getMedicineReminders() != null
+                            ? healthProduct.getMedicineReminders().size()
+                            : 0;
+                    dto.setMissedCount(Math.max(0, reminderCount - takenCount)); // Ensure non-negative
 
                     return dto;
                 })

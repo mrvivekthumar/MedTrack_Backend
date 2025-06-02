@@ -2,6 +2,7 @@ package com.medtrack.model;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
@@ -48,7 +49,7 @@ public class HealthProduct {
     private User user;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "healthProduct")
-    private Set<MedicineReminder> medicineReminders;
+    private Set<MedicineReminder> medicineReminders = new java.util.HashSet<>();
 
     @Column(nullable = false, updatable = false)
     private Timestamp createdAt;
