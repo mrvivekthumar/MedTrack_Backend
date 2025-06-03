@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.medtrack.dto.HealthProductRequestDto;
+import com.medtrack.exceptions.AuthException;
 import com.medtrack.kafka.service.NotificationProducerService;
 import com.medtrack.model.HealthProduct;
 import com.medtrack.model.MedicineReminder;
@@ -226,6 +227,10 @@ public class HealthProductService {
     public HealthProduct recordMedicineUsage(Long healthProductId) {
         HealthProduct product = healthProductRepository.findById(healthProductId)
                 .orElseThrow(() -> new EntityNotFoundException("Health Product not found"));
+
+        if (product.getAvailableQuantity() < product.getDoseQuantity()) {
+            throw new AuthException("Insufficient quantity available for dose");
+        }
 
         Float originalQuantity = product.getAvailableQuantity();
         Float newQuantity = originalQuantity - product.getDoseQuantity();

@@ -53,7 +53,6 @@ public class HealthProductMapper {
         }
 
         return HealthProduct.builder()
-                .id(dto.userId())
                 .name(dto.healthProductname())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.availableQuantity())

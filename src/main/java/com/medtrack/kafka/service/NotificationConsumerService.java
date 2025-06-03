@@ -1,12 +1,9 @@
 // Create this file: src/main/java/com/medtrack/kafka/service/NotificationConsumerService.java
 package com.medtrack.kafka.service;
 
-import com.medtrack.kafka.dto.NotificationMessage;
-import com.medtrack.kafka.dto.NotificationResult;
-import com.medtrack.kafka.dto.NotificationType;
-import com.medtrack.utils.MailSenderService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -16,9 +13,12 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.CompletableFuture;
+import com.medtrack.kafka.dto.NotificationMessage;
+import com.medtrack.kafka.dto.NotificationResult;
+import com.medtrack.utils.MailSenderService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j

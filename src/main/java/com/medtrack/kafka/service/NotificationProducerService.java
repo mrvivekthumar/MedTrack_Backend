@@ -37,15 +37,20 @@ public class NotificationProducerService {
             String messageId = UUID.randomUUID().toString();
             String correlationId = "expiry-" + product.getId() + "-" + System.currentTimeMillis();
 
+            // ✅ FIX: Handle null values gracefully
+            String productName = getSafeProductName(product);
+            String userEmail = getSafeUserEmail(product);
+            String userName = getSafeUserName(product);
+
             NotificationMessage message = NotificationMessage.builder()
                     .messageId(messageId)
                     .correlationId(correlationId)
                     .type(NotificationType.MEDICINE_EXPIRY_WARNING)
                     .healthProductId(product.getId())
-                    .userId(product.getUser().getId())
-                    .productName(product.getName())
-                    .userEmail(product.getUser().getEmail())
-                    .userName(product.getUser().getFullname())
+                    .userId(product.getUser() != null ? product.getUser().getId() : null)
+                    .productName(productName)
+                    .userEmail(userEmail)
+                    .userName(userName)
                     .expiryDate(product.getExpiryDate())
                     .scheduledAt(LocalDateTime.now().plusDays(expiryWarningDays))
                     .createdAt(LocalDateTime.now())
@@ -57,7 +62,7 @@ public class NotificationProducerService {
             sendNotificationMessage(expiryTopicName, correlationId, message);
 
             log.info("Expiry notification queued for product: {} (ID: {})",
-                    product.getName(), product.getId());
+                    productName, product.getId());
 
         } catch (Exception e) {
             log.error("Failed to send expiry notification for product ID: {}",
@@ -74,15 +79,21 @@ public class NotificationProducerService {
             String messageId = UUID.randomUUID().toString();
             String correlationId = "lowstock-" + product.getId() + "-" + System.currentTimeMillis();
 
+            // ✅ FIX: Handle null values gracefully
+            String productName = getSafeProductName(product);
+            String userEmail = getSafeUserEmail(product);
+            String userName = getSafeUserName(product);
+            String unit = product.getUnit() != null ? product.getUnit() : "units";
+
             NotificationMessage message = NotificationMessage.builder()
                     .messageId(messageId)
                     .correlationId(correlationId)
                     .type(NotificationType.LOW_STOCK_ALERT)
                     .healthProductId(product.getId())
-                    .userId(product.getUser().getId())
-                    .productName(product.getName())
-                    .userEmail(product.getUser().getEmail())
-                    .userName(product.getUser().getFullname())
+                    .userId(product.getUser() != null ? product.getUser().getId() : null)
+                    .productName(productName)
+                    .userEmail(userEmail)
+                    .userName(userName)
                     .expiryDate(product.getExpiryDate())
                     .scheduledAt(LocalDateTime.now()) // Send immediately
                     .createdAt(LocalDateTime.now())
@@ -90,14 +101,14 @@ public class NotificationProducerService {
                     .availableQuantity(product.getAvailableQuantity())
                     .thresholdQuantity(product.getThresholdQuantity())
                     .additionalInfo(String.format("Stock low: %.1f %s remaining (threshold: %.1f %s)",
-                            product.getAvailableQuantity(), product.getUnit(),
-                            product.getThresholdQuantity(), product.getUnit()))
+                            product.getAvailableQuantity(), unit,
+                            product.getThresholdQuantity(), unit))
                     .build();
 
             sendNotificationMessage(expiryTopicName, correlationId, message);
 
             log.info("Low stock notification queued for product: {} (ID: {})",
-                    product.getName(), product.getId());
+                    productName, product.getId());
 
         } catch (Exception e) {
             log.error("Failed to send low stock notification for product ID: {}",
@@ -113,15 +124,20 @@ public class NotificationProducerService {
             String messageId = UUID.randomUUID().toString();
             String correlationId = "outofstock-" + product.getId() + "-" + System.currentTimeMillis();
 
+            // ✅ FIX: Handle null values gracefully
+            String productName = getSafeProductName(product);
+            String userEmail = getSafeUserEmail(product);
+            String userName = getSafeUserName(product);
+
             NotificationMessage message = NotificationMessage.builder()
                     .messageId(messageId)
                     .correlationId(correlationId)
                     .type(NotificationType.OUT_OF_STOCK_ALERT)
                     .healthProductId(product.getId())
-                    .userId(product.getUser().getId())
-                    .productName(product.getName())
-                    .userEmail(product.getUser().getEmail())
-                    .userName(product.getUser().getFullname())
+                    .userId(product.getUser() != null ? product.getUser().getId() : null)
+                    .productName(productName)
+                    .userEmail(userEmail)
+                    .userName(userName)
                     .expiryDate(product.getExpiryDate())
                     .scheduledAt(LocalDateTime.now()) // Send immediately
                     .createdAt(LocalDateTime.now())
@@ -134,12 +150,51 @@ public class NotificationProducerService {
             sendNotificationMessage(expiryTopicName, correlationId, message);
 
             log.info("Out of stock notification queued for product: {} (ID: {})",
-                    product.getName(), product.getId());
+                    productName, product.getId());
 
         } catch (Exception e) {
             log.error("Failed to send out of stock notification for product ID: {}",
                     product.getId(), e);
         }
+    }
+
+    // ✅ NEW: Helper methods to safely extract values
+    private String getSafeProductName(HealthProduct product) {
+        if (product == null)
+            return "Unknown Product";
+
+        String name = product.getName();
+        if (name != null && !name.trim().isEmpty()) {
+            return name.trim();
+        }
+
+        return "Medicine #" + product.getId();
+    }
+
+    private String getSafeUserEmail(HealthProduct product) {
+        if (product == null || product.getUser() == null) {
+            return "no-email@medtrack.com";
+        }
+
+        String email = product.getUser().getEmail();
+        if (email != null && !email.trim().isEmpty()) {
+            return email.trim();
+        }
+
+        return "user" + product.getUser().getId() + "@medtrack.com";
+    }
+
+    private String getSafeUserName(HealthProduct product) {
+        if (product == null || product.getUser() == null) {
+            return "Unknown User";
+        }
+
+        String fullName = product.getUser().getFullname();
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            return fullName.trim();
+        }
+
+        return "User #" + product.getUser().getId();
     }
 
     /**
@@ -175,13 +230,15 @@ public class NotificationProducerService {
      */
     public boolean isKafkaHealthy() {
         try {
-            // Try to send a simple test message (you can create a health-check topic)
             String testMessage = "health-check-" + System.currentTimeMillis();
             kafkaTemplate.send("health-check", testMessage,
                     NotificationMessage.builder()
                             .messageId(testMessage)
                             .type(NotificationType.MEDICINE_EXPIRY_WARNING)
                             .createdAt(LocalDateTime.now())
+                            .productName("Health Check Test") // ✅ Ensure not null
+                            .userEmail("health@medtrack.com") // ✅ Ensure not null
+                            .healthProductId(0L) // ✅ Ensure not null
                             .build());
             return true;
         } catch (Exception e) {
