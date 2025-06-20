@@ -2,6 +2,7 @@ package com.medtrack.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,7 +16,8 @@ public record HealthProductResponseDto(
         Float doseQuantity,
         String unit,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDate expiryDate,
-        List<String> reminderTimes) implements Serializable {
+        List<String> reminderTimes,
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime createdAt) implements Serializable {
 
     // Compact constructor for validation if needed
     public HealthProductResponseDto {
@@ -32,6 +34,6 @@ public record HealthProductResponseDto(
             String unit,
             List<String> reminderTimes) {
         this(healthProductId, healthProductName, totalQuantity, null, thresholdQuantity, doseQuantity, unit, expiryDate,
-                reminderTimes);
+                reminderTimes, null);
     }
 }

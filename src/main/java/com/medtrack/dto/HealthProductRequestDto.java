@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 public record HealthProductRequestDto(
         Long userId,
-        String healthProductname,
+        String healthProductName,
         Float totalQuantity,
         Float availableQuantity,
         Float thresholdQuantity,

@@ -50,7 +50,7 @@ public class HealthProductService {
 
         // Build HealthProduct entity from DTO
         HealthProduct product = HealthProduct.builder()
-                .name(dto.healthProductname())
+                .name(dto.healthProductName())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.totalQuantity()) // Initially, available equals total
                 .thresholdQuantity(
@@ -100,7 +100,7 @@ public class HealthProductService {
         User user = existingProduct.getUser();
 
         // Update product fields from DTO
-        existingProduct.setName(dto.healthProductname());
+        existingProduct.setName(dto.healthProductName());
         existingProduct.setTotalQuantity(dto.totalQuantity());
 
         // Only update available quantity if specifically provided

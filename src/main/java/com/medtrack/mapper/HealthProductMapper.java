@@ -1,5 +1,6 @@
 package com.medtrack.mapper;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,8 @@ public class HealthProductMapper {
                 .map(reminder -> reminder.getTime().format(DateTimeFormatter.ofPattern("HH:mm")))
                 .collect(Collectors.toList()) : Collections.emptyList();
 
+        LocalDateTime createdAt = product.getCreatedAt() != null ? product.getCreatedAt().toLocalDateTime() : null;
+
         return new HealthProductResponseDto(
                 product.getId(),
                 product.getName(),
@@ -40,7 +43,8 @@ public class HealthProductMapper {
                 product.getDoseQuantity(),
                 product.getUnit(),
                 product.getExpiryDate(),
-                reminderTimes);
+                reminderTimes,
+                createdAt);
     }
 
     /**
@@ -53,7 +57,7 @@ public class HealthProductMapper {
         }
 
         return HealthProduct.builder()
-                .name(dto.healthProductname())
+                .name(dto.healthProductName())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.availableQuantity())
                 .thresholdQuantity(dto.thresholdQuantity())
@@ -75,7 +79,7 @@ public class HealthProductMapper {
 
         return HealthProduct.builder()
                 .id(dto.userId())
-                .name(dto.healthProductname())
+                .name(dto.healthProductName())
                 .totalQuantity(dto.totalQuantity())
                 .availableQuantity(dto.availableQuantity())
                 .thresholdQuantity(dto.thresholdQuantity())
