@@ -40,8 +40,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Kafka Broker
  # Kafka Broker
   kafka:
     container_name: medtrack_kafka
