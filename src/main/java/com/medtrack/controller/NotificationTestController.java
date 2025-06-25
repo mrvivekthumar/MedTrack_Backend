@@ -1,4 +1,3 @@
-// Create this file: src/main/java/com/medtrack/controller/NotificationTestController.java
 package com.medtrack.controller;
 
 import com.medtrack.kafka.service.NotificationProducerService;
@@ -6,6 +5,16 @@ import com.medtrack.model.HealthProduct;
 import com.medtrack.model.User;
 import com.medtrack.repository.HealthProductRepo;
 import com.medtrack.repository.UserRepo;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,17 +28,44 @@ import java.util.Map;
 @RequestMapping("/api/v1/test/notifications")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Notification Testing", description = "Testing endpoints for Kafka-based notification system - Development and QA use only")
+@SecurityRequirement(name = "bearerAuth")
 public class NotificationTestController {
 
     private final NotificationProducerService notificationProducerService;
     private final HealthProductRepo healthProductRepo;
     private final UserRepo userRepo;
 
-    /**
-     * Test endpoint to manually trigger an expiry notification
-     */
     @PostMapping("/test-expiry/{productId}")
-    public ResponseEntity<Map<String, String>> testExpiryNotification(@PathVariable Long productId) {
+    @Operation(summary = "🧪 Test expiry notification", description = """
+            **FOR TESTING ONLY** - Manually triggers an expiry notification for a specific product.
+
+            This endpoint:
+            - Sends expiry warning message to Kafka topic
+            - Uses the actual notification system pipeline
+            - Helps verify email delivery and message formatting
+
+            ⚠️ **Note**: This will send a real email if the notification consumer is running!
+            """, tags = { "Manual Testing" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Expiry notification sent successfully to Kafka", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "success",
+                        "message": "Expiry notification sent to Kafka for product: Paracetamol 500mg",
+                        "productName": "Paracetamol 500mg",
+                        "userEmail": "john.doe@example.com"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "400", description = "Product not found or Kafka error", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "error",
+                        "message": "Failed to send notification: Product not found"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Map<String, String>> testExpiryNotification(
+            @Parameter(description = "Health product ID to test expiry notification for", required = true, example = "1") @PathVariable Long productId) {
         Map<String, String> response = new HashMap<>();
 
         try {
@@ -54,11 +90,32 @@ public class NotificationTestController {
         }
     }
 
-    /**
-     * Test endpoint to manually trigger a low stock notification
-     */
     @PostMapping("/test-low-stock/{productId}")
-    public ResponseEntity<Map<String, String>> testLowStockNotification(@PathVariable Long productId) {
+    @Operation(summary = "🧪 Test low stock notification", description = """
+            **FOR TESTING ONLY** - Manually triggers a low stock alert for a specific product.
+
+            This endpoint:
+            - Sends low stock warning to Kafka topic
+            - Includes current availability and threshold info
+            - Tests the complete notification pipeline
+
+            ⚠️ **Note**: This will send a real email if the notification consumer is running!
+            """, tags = { "Manual Testing" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Low stock notification sent successfully to Kafka", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "success",
+                        "message": "Low stock notification sent to Kafka for product: Paracetamol 500mg",
+                        "productName": "Paracetamol 500mg",
+                        "availableQuantity": "5.0",
+                        "thresholdQuantity": "10.0"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "400", description = "Product not found or Kafka error", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Map<String, String>> testLowStockNotification(
+            @Parameter(description = "Health product ID to test low stock notification for", required = true, example = "1") @PathVariable Long productId) {
         Map<String, String> response = new HashMap<>();
 
         try {
@@ -84,11 +141,30 @@ public class NotificationTestController {
         }
     }
 
-    /**
-     * Test endpoint to manually trigger an out of stock notification
-     */
     @PostMapping("/test-out-of-stock/{productId}")
-    public ResponseEntity<Map<String, String>> testOutOfStockNotification(@PathVariable Long productId) {
+    @Operation(summary = "🧪 Test out of stock notification", description = """
+            **FOR TESTING ONLY** - Manually triggers an out of stock alert for a specific product.
+
+            This endpoint:
+            - Sends critical out of stock alert to Kafka
+            - Marks product as completely unavailable
+            - Tests urgent notification delivery
+
+            ⚠️ **Note**: This will send a real email if the notification consumer is running!
+            """, tags = { "Manual Testing" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Out of stock notification sent successfully to Kafka", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "success",
+                        "message": "Out of stock notification sent to Kafka for product: Paracetamol 500mg",
+                        "productName": "Paracetamol 500mg"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "400", description = "Product not found or Kafka error", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Map<String, String>> testOutOfStockNotification(
+            @Parameter(description = "Health product ID to test out of stock notification for", required = true, example = "1") @PathVariable Long productId) {
         Map<String, String> response = new HashMap<>();
 
         try {
@@ -112,10 +188,38 @@ public class NotificationTestController {
         }
     }
 
-    /**
-     * Test Kafka connectivity
-     */
     @GetMapping("/health-check")
+    @Operation(summary = "🔍 Check Kafka connectivity", description = """
+            Performs a health check of the Kafka notification system.
+
+            **Checks:**
+            - Kafka broker connectivity
+            - Producer functionality
+            - Topic accessibility
+
+            **Use this to:**
+            - Verify Kafka is running and accessible
+            - Test message production capabilities
+            - Debug notification system issues
+            """, tags = { "System Health" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Kafka system is healthy", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "healthy",
+                        "kafka": "connected",
+                        "timestamp": 1706198400000
+                    }
+                    """))),
+            @ApiResponse(responseCode = "500", description = "Kafka system is unhealthy", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "unhealthy",
+                        "kafka": "error",
+                        "error": "Connection refused to Kafka broker",
+                        "timestamp": 1706198400000
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json"))
+    })
     public ResponseEntity<Map<String, Object>> kafkaHealthCheck() {
         Map<String, Object> response = new HashMap<>();
 
@@ -138,11 +242,41 @@ public class NotificationTestController {
         }
     }
 
-    /**
-     * Create a test product for testing notifications
-     */
     @PostMapping("/create-test-product/{userId}")
-    public ResponseEntity<Map<String, Object>> createTestProduct(@PathVariable Long userId) {
+    @Operation(summary = "🧪 Create test product", description = """
+            **FOR TESTING ONLY** - Creates a test medicine product with pre-configured values for testing notifications.
+
+            **Created product features:**
+            - Low stock threshold for testing low stock alerts
+            - Near expiry date for testing expiry notifications
+            - Realistic quantities and dosing information
+
+            **Perfect for:**
+            - QA testing of notification flows
+            - Demo purposes
+            - Integration testing
+            """, tags = { "Test Data Creation" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Test product created successfully", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "success",
+                        "message": "Test product created successfully",
+                        "productId": 123,
+                        "productName": "Test Medicine - 1706198400000",
+                        "expiryDate": "2024-04-15",
+                        "availableQuantity": 15.0
+                    }
+                    """))),
+            @ApiResponse(responseCode = "400", description = "User not found or creation failed", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "error",
+                        "message": "Failed to create test product: User not found"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Map<String, Object>> createTestProduct(
+            @Parameter(description = "User ID to create test product for", required = true, example = "1") @PathVariable Long userId) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -180,11 +314,62 @@ public class NotificationTestController {
         }
     }
 
-    /**
-     * Get all products for a user (for testing)
-     */
     @GetMapping("/products/{userId}")
-    public ResponseEntity<Object> getUserProducts(@PathVariable Long userId) {
+    @Operation(summary = "📋 Get user products for testing", description = """
+            **FOR TESTING ONLY** - Retrieves all products for a user to help with testing workflows.
+
+            **Useful for:**
+            - Finding product IDs for notification testing
+            - Verifying test product creation
+            - Checking product states before/after tests
+
+            **Returns:** Complete product list with IDs, names, quantities, and expiry dates.
+            """, tags = { "Test Data Retrieval" })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User products retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(type = "array"), examples = @ExampleObject(value = """
+                    [
+                        {
+                            "id": 1,
+                            "name": "Paracetamol 500mg",
+                            "totalQuantity": 100.0,
+                            "availableQuantity": 75.0,
+                            "thresholdQuantity": 10.0,
+                            "doseQuantity": 1.0,
+                            "unit": "tablets",
+                            "expiryDate": "2025-12-31",
+                            "user": {
+                                "id": 1,
+                                "fullname": "John Doe",
+                                "email": "john.doe@example.com"
+                            }
+                        },
+                        {
+                            "id": 2,
+                            "name": "Test Medicine - 1706198400000",
+                            "totalQuantity": 100.0,
+                            "availableQuantity": 15.0,
+                            "thresholdQuantity": 20.0,
+                            "doseQuantity": 5.0,
+                            "unit": "tablets",
+                            "expiryDate": "2024-04-15",
+                            "user": {
+                                "id": 1,
+                                "fullname": "John Doe",
+                                "email": "john.doe@example.com"
+                            }
+                        }
+                    ]
+                    """))),
+            @ApiResponse(responseCode = "400", description = "Error retrieving products", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+                    {
+                        "status": "error",
+                        "message": "User not found"
+                    }
+                    """))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = "application/json"))
+    })
+    public ResponseEntity<Object> getUserProducts(
+            @Parameter(description = "User ID to get products for", required = true, example = "1") @PathVariable Long userId) {
         try {
             var products = healthProductRepo.findByUserId(userId);
             return ResponseEntity.ok(products);

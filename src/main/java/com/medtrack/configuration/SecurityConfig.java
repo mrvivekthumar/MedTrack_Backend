@@ -34,8 +34,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/user/signup", "/api/v1/user/signin").permitAll()
                         .requestMatchers("/api/v1/user/test", "/api/v1/test/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api-docs/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-resources/**", "/webjars/**").permitAll()
                         .requestMatchers("/api/v1/health-product/**").authenticated()
                         .requestMatchers("/api/v1/medicine-logs/**").authenticated()
+                        .requestMatchers("/api/v1/user/**").authenticated()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
